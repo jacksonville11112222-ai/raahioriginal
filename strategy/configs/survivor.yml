@@ -6,10 +6,10 @@
 #
 # STRATEGY OVERVIEW:
 # ==================
-# The strategy monitors NIFTY price movements and sells options when the index moves
+# The strategy monitors NIFTY price movements and buys options when the index moves
 # beyond certain thresholds:
-# - PE (Put) Trading: Triggered when NIFTY moves UP beyond pe_gap threshold
-# - CE (Call) Trading: Triggered when NIFTY moves DOWN beyond ce_gap threshold
+# - CE (Call) Trading: Triggered when NIFTY moves UP beyond ce_gap threshold
+# - PE (Put) Trading: Triggered when NIFTY moves DOWN beyond pe_gap threshold
 #
 # Each trade uses a multiplier system based on the magnitude of price movement,
 # allowing the strategy to scale positions according to market volatility.
