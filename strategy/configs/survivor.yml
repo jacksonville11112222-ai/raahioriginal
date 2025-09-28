@@ -35,17 +35,17 @@ default:
   # GAP PARAMETERS - TRADE TRIGGERING THRESHOLDS
   # ========================================================================
   
-  # Price movement threshold to trigger PE (Put) option sells
-  # When NIFTY rises by this many points above the PE reference value, 
-  # the strategy will sell PE options
-  # Example: If pe_gap=20 and NIFTY moves up 25 points, PE trade is triggered
-  pe_gap: 20
-  
-  # Price movement threshold to trigger CE (Call) option sells  
-  # When NIFTY falls by this many points below the CE reference value,
-  # the strategy will sell CE options
-  # Example: If ce_gap=20 and NIFTY moves down 25 points, CE trade is triggered
+  # Price movement threshold to trigger CE (Call) option buys
+  # When NIFTY rises by this many points above the CE reference value, 
+  # the strategy will buy CE options
+  # Example: If ce_gap=20 and NIFTY moves up 25 points, CE trade is triggered
   ce_gap: 20
+  
+  # Price movement threshold to trigger PE (Put) option buys  
+  # When NIFTY falls by this many points below the PE reference value,
+  # the strategy will buy PE options
+  # Example: If pe_gap=20 and NIFTY moves down 25 points, PE trade is triggered
+  pe_gap: 20
   
   # ========================================================================
   # POSITION SIZING PARAMETERS
