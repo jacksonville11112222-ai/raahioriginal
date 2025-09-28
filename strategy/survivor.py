@@ -290,7 +290,7 @@ if __name__ == "__main__":
         sys.exit(0)
 
     # Setup Broker
-    broker = ZerodhaBroker(without_totp=os.getenv("BROKER_TOTP_ENABLE") != "true")
+    broker = ZerodhaBroker(access_token=os.getenv("BROKER_ACCESS_TOKEN"))
     order_tracker = OrderTracker()
 
     try:
