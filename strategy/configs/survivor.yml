@@ -67,12 +67,12 @@ default:
   
   # Distance below current NIFTY price for CE strike selection
   # CE strikes are selected this many points below the current spot price
-  # Example: If NIFTY=24500 and ce_symbol_gap=200, CE strikes around 24300 are selected
+  # Example: If NIFTY=24500 and ce_symbol_gap=200, CE strikes around 24700 are selected
   ce_symbol_gap: 200
   
   # Distance above current NIFTY price for PE strike selection
   # PE strikes are selected this many points above the current spot price
-  # Example: If NIFTY=24500 and pe_symbol_gap=200, PE strikes around 24700 are selected
+  # Example: If NIFTY=24500 and pe_symbol_gap=200, PE strikes around 24300 are selected
   pe_symbol_gap: 200
   
   # ========================================================================
