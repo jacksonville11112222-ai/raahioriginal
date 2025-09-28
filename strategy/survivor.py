@@ -234,10 +234,17 @@ class SurvivorStrategy:
 
     def _place_order(self, symbol, quantity):
         try:
+            # Ensure all required parameters, including price, are passed to place_order
             order_id = self.broker.place_order(
-                tradingsymbol=symbol, quantity=quantity, exchange=self.strat_var_exchange,
-                transaction_type=self.strat_var_trans_type, order_type=self.strat_var_order_type,
-                product=self.strat_var_product_type, variety="regular", tag="Survivor"
+                symbol=symbol,
+                quantity=quantity,
+                price=0,  # Price is 0 for market orders
+                transaction_type=self.strat_var_trans_type,
+                order_type=self.strat_var_order_type,
+                variety="regular",
+                exchange=self.strat_var_exchange,
+                product=self.strat_var_product_type,
+                tag="Survivor"
             )
             if not order_id:
                 logger.error(f"Order placement failed for {symbol} × {quantity}.")

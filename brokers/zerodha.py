@@ -46,23 +46,51 @@ class ZerodhaBroker(BrokerBase):
     def authenticate(self) -> Dict[str, Any]:
         """
         Authenticates the user using the Kite Connect login flow.
-        This is an interactive process and requires manual intervention.
+        Supports both interactive and non-interactive (TOTP-based) authentication.
         """
         api_key = os.getenv('BROKER_API_KEY')
         api_secret = os.getenv('BROKER_API_SECRET')
+        totp_enabled = os.getenv('BROKER_TOTP_ENABLE', 'false').lower() == 'true'
 
         if not api_key or not api_secret:
             raise ValueError("BROKER_API_KEY and BROKER_API_SECRET must be set in the environment.")
 
+        if totp_enabled:
+            logger.info("Attempting non-interactive TOTP-based authentication.")
+            user_id = os.getenv('BROKER_ID')
+            password = os.getenv('BROKER_PASSWORD')
+            totp_secret = os.getenv('BROKER_TOTP_KEY')
+
+            if not all([user_id, password, totp_secret]):
+                raise ValueError("BROKER_ID, BROKER_PASSWORD, and BROKER_TOTP_KEY must be set for TOTP authentication.")
+
+            try:
+                # Generate the TOTP
+                totp = pyotp.TOTP(totp_secret).now()
+
+                # The generate_session method can handle TOTP by passing user_id, password, and the generated totp
+                session_data = self.kite.generate_session(user_id, password, totp)
+                logger.info("TOTP-based authentication successful.")
+                return session_data
+            except Exception as e:
+                logger.error(f"TOTP-based authentication failed: {e}")
+                logger.warning("Falling back to interactive authentication due to an error.")
+                return self._interactive_login(api_secret)
+        else:
+            return self._interactive_login(api_secret)
+
+    def _interactive_login(self, api_secret: str) -> Dict[str, Any]:
+        """Handles the interactive login flow."""
+        logger.info("Starting interactive authentication.")
         print(f"Please grant access by visiting the following URL:\n{self.kite.login_url()}")
         request_token = input("Enter the request_token from the redirect URL: ")
 
         try:
             session_data = self.kite.generate_session(request_token, api_secret=api_secret)
-            logger.info("Authentication successful.")
+            logger.info("Interactive authentication successful.")
             return session_data
         except Exception as e:
-            logger.error(f"Authentication failed: {e}")
+            logger.error(f"Interactive authentication failed: {e}")
             raise
     
     def get_orders(self):
@@ -76,14 +104,21 @@ class ZerodhaBroker(BrokerBase):
 
     def place_gtt_order(self, symbol: str, quantity: int, price: float, transaction_type: str, order_type: str, exchange: str, product: str, tag: str = "Unknown") -> int:
         """Places a GTT (Good Till Triggered) order."""
-        # Although the API accepts string constants, using the library's constants is a good practice.
         if order_type not in [self.kite.ORDER_TYPE_LIMIT, self.kite.ORDER_TYPE_MARKET]:
             raise ValueError(f"Invalid order type: {order_type}")
 
         if transaction_type not in [self.kite.TRANSACTION_TYPE_BUY, self.kite.TRANSACTION_TYPE_SELL]:
             raise ValueError(f"Invalid transaction type: {transaction_type}")
 
-        order_obj = {
+        # Fetch the last price for the condition
+        full_symbol = f"{exchange}:{symbol}"
+        quote_data = self.get_quote(symbol=symbol, exchange=exchange)
+        if full_symbol not in quote_data:
+            raise ValueError(f"Could not retrieve quote for symbol: {full_symbol}")
+        last_price = quote_data[full_symbol]['last_price']
+
+        # Define the order to be placed when the GTT is triggered
+        order = {
             "exchange": exchange,
             "tradingsymbol": symbol,
             "transaction_type": transaction_type,
@@ -93,25 +128,20 @@ class ZerodhaBroker(BrokerBase):
             "price": price,
         }
 
-        full_symbol = f"{exchange}:{symbol}"
-        # Fetch the last price using the corrected get_quote method
-        quote_data = self.get_quote(symbol=symbol, exchange=exchange)
-        if full_symbol not in quote_data:
-            raise ValueError(f"Could not retrieve quote for symbol: {full_symbol}")
-        last_price = quote_data[full_symbol]['last_price']
-
-        # The 'orders' parameter must be a list of order objects.
-        gtt_payload = {
-            "trigger_type": self.kite.GTT_TYPE_SINGLE,
-            "tradingsymbol": symbol,
-            "exchange": exchange,
-            "trigger_values": [price],
-            "last_price": last_price,
-            "orders": [order_obj],  # Corrected to be a list
-        }
-
-        order_id = self.kite.place_gtt(**gtt_payload)
-        return order_id['trigger_id']
+        try:
+            # The place_gtt method expects Python objects, not JSON strings
+            order_result = self.kite.place_gtt(
+                trigger_type=self.kite.GTT_TYPE_SINGLE,
+                tradingsymbol=symbol,
+                exchange=exchange,
+                trigger_values=[price],
+                last_price=last_price,
+                orders=[order]
+            )
+            return order_result['trigger_id']
+        except Exception as e:
+            logger.error(f"GTT order placement failed: {e}")
+            raise
 
     def place_order(self, symbol, quantity, price, transaction_type, order_type, variety, exchange, product, tag="Unknown"):
         # Standardize order parameters using KiteConnect constants
@@ -149,7 +179,7 @@ class ZerodhaBroker(BrokerBase):
             return order_id
         except Exception as e:
             logger.error(f"Order placement failed: {e}")
-            return -1
+            return None
     
 
     def get_positions(self):
