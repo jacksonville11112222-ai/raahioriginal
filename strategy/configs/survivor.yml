@@ -51,29 +51,29 @@ default:
   # POSITION SIZING PARAMETERS
   # ========================================================================
   
+  # Base quantity for CE option trades - Multiple of Lot Size
+  # Total quantity = ce_quantity × buy_multiplier
+  # Example: If ce_quantity=75 and multiplier=2, total cE quantity = 150
+  ce_quantity: 75
+  
   # Base quantity for PE option trades - Multiple of Lot Size
-  # Total quantity = pe_quantity × sell_multiplier
+  # Total quantity = pe_quantity × buy_multiplier  
   # Example: If pe_quantity=75 and multiplier=2, total PE quantity = 150
   pe_quantity: 75
-  
-  # Base quantity for CE option trades - Multiple of Lot Size
-  # Total quantity = ce_quantity × sell_multiplier  
-  # Example: If ce_quantity=75 and multiplier=2, total CE quantity = 150
-  ce_quantity: 75
   
   # ========================================================================
   # STRIKE SELECTION PARAMETERS
   # ========================================================================
   
-  # Distance below current NIFTY price for PE strike selection
-  # PE strikes are selected this many points below the current spot price
-  # Example: If NIFTY=24500 and pe_symbol_gap=200, PE strikes around 24300 are selected
-  pe_symbol_gap: 200
-  
-  # Distance above current NIFTY price for CE strike selection
-  # CE strikes are selected this many points above the current spot price
-  # Example: If NIFTY=24500 and ce_symbol_gap=200, CE strikes around 24700 are selected
+  # Distance below current NIFTY price for CE strike selection
+  # CE strikes are selected this many points below the current spot price
+  # Example: If NIFTY=24500 and ce_symbol_gap=200, CE strikes around 24300 are selected
   ce_symbol_gap: 200
+  
+  # Distance above current NIFTY price for PE strike selection
+  # PE strikes are selected this many points above the current spot price
+  # Example: If NIFTY=24500 and pe_symbol_gap=200, PE strikes around 24700 are selected
+  pe_symbol_gap: 200
   
   # ========================================================================
   # RISK MANAGEMENT PARAMETERS
@@ -82,53 +82,53 @@ default:
   # Minimum option premium threshold for trade execution
   # Options with premium below this value will be skipped to avoid illiquid trades
   # Prevents trading very cheap options that may have poor liquidity
-  min_price_to_sell: 15
+  min_price_to_buy: 15
   
   # Maximum allowed position multiplier for risk control
   # Prevents excessive position sizes during large market moves
   # Example: If threshold=5 and calculated multiplier=6, trade will be blocked
-  sell_multiplier_threshold: 5
+  buy_multiplier_threshold: 5
   
   # ========================================================================
   # REFERENCE RESET PARAMETERS
   # ========================================================================
   
-  # Favorable movement threshold to reset PE reference value
-  # When NIFTY moves down by this amount after PE trades, the PE reference
-  # is reset closer to current price to maintain strategy responsiveness
-  # Example: If pe_reset_gap=30 and NIFTY drops 35 points after PE trade, reset occurs
-  pe_reset_gap: 30
-  
   # Favorable movement threshold to reset CE reference value
-  # When NIFTY moves up by this amount after CE trades, the CE reference
+  # When NIFTY moves down by this amount after CE trades, the CE reference
   # is reset closer to current price to maintain strategy responsiveness
-  # Example: If ce_reset_gap=30 and NIFTY rises 35 points after CE trade, reset occurs
+  # Example: If ce_reset_gap=30 and NIFTY drops 35 points after CE trade, reset occurs
   ce_reset_gap: 30
+  
+  # Favorable movement threshold to reset PE reference value
+  # When NIFTY moves up by this amount after PE trades, the PE reference
+  # is reset closer to current price to maintain strategy responsiveness
+  # Example: If pe_reset_gap=30 and NIFTY rises 35 points after PE trade, reset occurs
+  pe_reset_gap: 30
   
   # ========================================================================
   # STARTING REFERENCE POINTS
   # ========================================================================
   
-  # Initial PE reference value (0 = use current market price)
-  # If 0: Uses current NIFTY price as starting reference
-  # If specified: Uses that value as starting reference for PE tracking
-  # Example: pe_start_point=24500 starts PE tracking from 24500
-  pe_start_point: 0
-  
   # Initial CE reference value (0 = use current market price)
-  # If 0: Uses current NIFTY price as starting reference  
+  # If 0: Uses current NIFTY price as starting reference
   # If specified: Uses that value as starting reference for CE tracking
   # Example: ce_start_point=24500 starts CE tracking from 24500
   ce_start_point: 0
+  
+  # Initial PE reference value (0 = use current market price)
+  # If 0: Uses current NIFTY price as starting reference  
+  # If specified: Uses that value as starting reference for PE tracking
+  # Example: pe_start_point=24500 starts PE tracking from 24500
+  pe_start_point: 0
   
   # ========================================================================
   # ORDER EXECUTION PARAMETERS
   # ========================================================================
   
-  # Transaction type for all orders (typically SELL for premium collection)
-  # SELL: Sell options to collect premium (strategy default)
-  # BUY: Buy options (not typically used in this strategy)
-  trans_type: "SELL"
+  # Transaction type for all orders (typically BUY)
+  # BUY: buy options (strategy default)
+  # BUY: Buy options (typically used in this strategy)
+  trans_type: "BUY"
   
   # Exchange for trading options (NFO = National Stock Exchange Futures & Options)
   exchange: "NFO"
