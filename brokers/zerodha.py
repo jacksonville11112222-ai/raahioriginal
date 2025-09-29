@@ -181,6 +181,8 @@ class ZerodhaBroker(BrokerBase):
             logger.error(f"Order placement failed: {e}")
             return None
     
+    def get_historical_data(self, instrument_token, from_date, to_date, interval, oi=False):
+        return self.kite.historical_data(instrument_token, from_date, to_date, interval, oi=oi)
 
     def get_positions(self):
         return self.kite.positions()

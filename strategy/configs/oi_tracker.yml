@@ -1,0 +1,47 @@
+# OI Tracker Strategy Configuration
+# =============================================
+#
+# This configuration file defines parameters for the OI Tracker Strategy, which monitors
+# Open Interest (OI) changes for NIFTY options.
+
+default:
+  # ========================================================================
+  # CORE PARAMETERS
+  # ========================================================================
+
+  # Underlying index symbol for price tracking
+  index_symbol: "NSE:NIFTY 50"
+
+  # Option series identifier prefix (e.g., 'NIFTYYYMMDD' for monthly/weekly expiries)
+  # This needs to be updated to the current expiry series you want to track.
+  # For example, for the August 2024 monthly expiry, it might be 'NIFTY248'.
+  # For a weekly expiry on Aug 8th, it could be 'NIFTY24808'.
+  symbol_initials: "NIFTY24AUG"
+
+  # Number of ITM/OTM strikes to track on each side of the ATM strike.
+  # For example, a value of 2 will track ATM-2, ATM-1, ATM, ATM+1, ATM+2.
+  strike_count: 2
+
+  # The difference between consecutive strike prices for NIFTY
+  nifty_strike_difference: 50
+
+  # Update interval in seconds
+  update_interval_seconds: 60
+
+  # ========================================================================
+  # UI AND ALERT PARAMETERS
+  # ========================================================================
+
+  # Percentage thresholds for color-coding cells red.
+  # If the change in OI for a given time interval exceeds this value, the cell turns red.
+  color_thresholds:
+    m3: 10  # > 10% change in 3 minutes
+    m5: 12  # > 12% change in 5 minutes
+    m10: 15 # > 15% change in 10 minutes
+    m15: 30 # > 30% change in 15 minutes
+    m30: 30 # > 30% change in 30 minutes
+    h3: 100 # > 100% change in 3 hours
+
+  # The threshold for the sound alert.
+  # If the percentage of red-colored cells in any table exceeds this value, a sound will play.
+  alert_threshold_percentage: 30
